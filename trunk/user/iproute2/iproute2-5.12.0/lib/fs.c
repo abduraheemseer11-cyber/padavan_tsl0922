@@ -26,6 +26,28 @@
 
 #include "utils.h"
 
+/* Fallback for toolchains (like uclibc) that lack these definitions */
+#ifndef HAVE_HANDLE_AT
+#include <sys/syscall.h>
+
+struct file_handle {
+	unsigned int handle_bytes;
+	int handle_type;
+	unsigned char f_handle[0];
+};
+
+static int name_to_handle_at(int dirfd, const char *pathname,
+			     struct file_handle *handle, int *mount_id, int flags)
+{
+	return syscall(__NR_name_to_handle_at, dirfd, pathname, handle, mount_id, flags);
+}
+
+static int open_by_handle_at(int mount_fd, struct file_handle *handle, int flags)
+{
+	return syscall(__NR_open_by_handle_at, mount_fd, handle, flags);
+}
+#endif
+
 #define CGROUP2_FS_NAME "cgroup2"
 
 /* if not already mounted cgroup2 is mounted here for iproute2's use */
