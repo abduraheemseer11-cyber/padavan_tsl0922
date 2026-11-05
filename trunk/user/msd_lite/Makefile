@@ -12,6 +12,7 @@ download_test:
 		cd $(SRC_NAME) ; \
 		git submodule update --init --recursive ; \
 		patch -p1 -i ../msd_lite.diff ; \
+		sed -i '1i #ifndef SYS_pidfd_open\n#define SYS_pidfd_open 434\n#endif' src/liblcb/src/threadpool/threadpool.c ; \
 	fi )
 
 config_test:
